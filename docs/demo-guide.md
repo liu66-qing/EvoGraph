@@ -1,7 +1,7 @@
 # EvoGraph 演示文档
 
 > 在线 Demo：https://evo-graph.vercel.app/
-> GitHub：https://github.com/liu66-qing/KG-RAG-Agent
+> GitHub：https://github.com/liu66-qing/EvoGraph
 
 ---
 
@@ -112,7 +112,7 @@ Agent 动态选择工具（图查询/向量搜索/时序查询/因果推理）�
 **开头**：
 ```
 EvoGraph — 实时知识图谱演化智能体
-一个生产级 Agentic RAG 系统，将传统 RAG 升级为：
+一个面向研究和二次开发的 Agentic RAG 原型，将传统 RAG 升级为：
 文档 → 知识图谱自动构建 → 时序版本化 → 冲突检测 → 多跳推理 → 溯源回答
 ```
 
@@ -125,7 +125,7 @@ EvoGraph — 实时知识图谱演化智能体
 
 **结尾**：
 ```
-GitHub: github.com/liu66-qing/KG-RAG-Agent
+GitHub: github.com/liu66-qing/EvoGraph
 在线 Demo: evo-graph.vercel.app
 核心创新：自适应推理循环 | 时序知识版本化 | 三类冲突检测 | 因果链推理 | 图感知混合检索 | 全链路溯源
 ```

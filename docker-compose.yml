@@ -38,6 +38,15 @@ services:
       interval: 5s
       retries: 5
 
+  qdrant:
+    image: qdrant/qdrant:v1.12.6
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
 volumes:
   neo4j_data:
   postgres_data:
+  qdrant_data:
