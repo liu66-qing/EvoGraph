@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 
 from fastapi import APIRouter, Query
 import structlog
 
 from evograph.graph.neo4j_client import neo4j_client
-from evograph.graph import traversal
 
 logger = structlog.get_logger()
 router = APIRouter()

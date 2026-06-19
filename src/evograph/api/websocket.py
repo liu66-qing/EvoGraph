@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import json
 import asyncio
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import structlog
 
 from evograph.agent.orchestrator import AgentOrchestrator
-from evograph.storage.redis_cache import redis_client
 
 logger = structlog.get_logger()
 router = APIRouter()

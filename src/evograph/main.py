@@ -46,12 +46,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # Allow all origins in production for demo purposes
-    origins = [
-        "http://localhost:5173",
-        "http://localhost:3000",
-    ]
-    # Allow any Vercel deployment
+    # Allow all origins for demo purposes
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],

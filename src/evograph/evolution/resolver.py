@@ -6,7 +6,6 @@ import structlog
 
 from evograph.models.domain import ExtractedEntity, ExtractionResult
 from evograph.graph.neo4j_client import neo4j_client
-from evograph.llm.client import llm_client
 
 logger = structlog.get_logger()
 

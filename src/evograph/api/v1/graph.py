@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Query
 import structlog
 
-from evograph.models.api_schemas import EntityResponse, SubgraphResponse
+from evograph.models.api_schemas import SubgraphResponse
 from evograph.models.domain import EntityType
 from evograph.graph import traversal
 

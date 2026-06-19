@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 from evograph.graph.neo4j_client import neo4j_client
-from evograph.models.domain import GraphEntity, GraphRelation, EntityType
 
 
 async def get_entity_by_id(entity_id: str) -> dict[str, Any] | None:
