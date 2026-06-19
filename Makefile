@@ -47,5 +47,9 @@ frontend-dev:
 frontend-build:
 	cd frontend && npm run build
 
+# Demo
+demo:
+	python scripts/seed_demo.py
+
 # Full stack
 all: docker-up migrate run
