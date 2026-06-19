@@ -7,8 +7,6 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 from evograph.models.domain import (
-    AgentResponse,
-    ConflictStatus,
     ConflictType,
     DocumentStatus,
     EntityType,
@@ -79,6 +77,9 @@ class QueryResponse(BaseModel):
     reasoning_trace: list[ReasoningStep] = Field(default_factory=list)
     sources: list[SourceReference] = Field(default_factory=list)
     conflicts: list[ConflictSummary] = Field(default_factory=list)
+    total_tokens: int = 0
+    total_cost: float = 0.0
+    total_duration_ms: int = 0
 
 
 # === Graph Schemas ===

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from typing import Any
 
 from openai import AsyncOpenAI
@@ -19,6 +20,9 @@ class LLMClient:
             base_url=settings.llm_base_url,
         )
         self._model = settings.llm_model_id
+        self._call_stats: list[dict] = []
+        self._total_tokens: int = 0
+        self._total_cost: float = 0.0
 
     async def chat(
         self,
@@ -36,7 +40,24 @@ class LLMClient:
         if response_format:
             kwargs["response_format"] = response_format
 
+        start_time = time.time()
         response = await self._client.chat.completions.create(**kwargs)
+        latency_ms = int((time.time() - start_time) * 1000)
+
+        if response.usage:
+            usage = response.usage
+            stat = {
+                "model": self._model,
+                "prompt_tokens": usage.prompt_tokens,
+                "completion_tokens": usage.completion_tokens,
+                "total_tokens": usage.total_tokens,
+                "timestamp": time.time(),
+                "latency_ms": latency_ms,
+            }
+            self._call_stats.append(stat)
+            self._total_tokens += usage.total_tokens
+            self._total_cost += (usage.prompt_tokens * 0.001 + usage.completion_tokens * 0.002) / 1000
+
         return response.choices[0].message.content or ""
 
     async def chat_json(
@@ -64,6 +85,22 @@ class LLMClient:
         async for chunk in stream:
             if chunk.choices[0].delta.content:
                 yield chunk.choices[0].delta.content
+
+    def get_stats(self) -> dict:
+        return {
+            "total_calls": len(self._call_stats),
+            "total_tokens": self._total_tokens,
+            "total_cost_yuan": round(self._total_cost, 4),
+            "avg_latency_ms": int(
+                sum(s["latency_ms"] for s in self._call_stats) / max(len(self._call_stats), 1)
+            ),
+            "recent_calls": self._call_stats[-10:],
+        }
+
+    def reset_stats(self) -> None:
+        self._call_stats.clear()
+        self._total_tokens = 0
+        self._total_cost = 0.0
 
 
 llm_client = LLMClient()

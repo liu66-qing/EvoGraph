@@ -25,3 +25,9 @@ async def health_check() -> HealthResponse:
         redis="ok" if redis_ok else "error",
         qdrant="ok" if qdrant_ok else "error",
     )
+
+
+@router.get("/metrics")
+async def get_metrics() -> dict:
+    from evograph.llm.client import llm_client
+    return llm_client.get_stats()

@@ -117,6 +117,9 @@ class AgentResponse(BaseModel):
     sources: list[ProvenanceRecord] = Field(default_factory=list)
     conflicts: list[KnowledgeConflict] = Field(default_factory=list)
     entities_referenced: list[str] = Field(default_factory=list)
+    total_tokens: int = 0
+    total_cost: float = 0.0
+    total_duration_ms: int = 0
 
 
 # === Extraction Models ===

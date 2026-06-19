@@ -12,6 +12,8 @@ from evograph.llm.client import llm_client
 from evograph.agent.planner import QueryPlanner
 from evograph.agent.tools.registry import tool_registry
 from evograph.models.domain import AgentResponse, ReasoningStep, QueryIntent
+from evograph.observability.tracing import SpanTracer
+from evograph.memory.session_store import session_memory
 
 logger = structlog.get_logger()
 
@@ -19,7 +21,7 @@ SYNTHESIS_PROMPT = """You are a knowledge graph reasoning agent. Based on the re
 
 Question: {question}
 
-Evidence gathered through reasoning:
+{conversation_history_section}Evidence gathered through reasoning:
 {evidence}
 
 Graph context (structured facts):
@@ -29,8 +31,9 @@ Instructions:
 1. Answer the question based ONLY on the provided evidence
 2. If evidence is insufficient, say so explicitly
 3. If there are conflicting facts, mention them
-4. Assign a confidence score (0.0-1.0) based on evidence quality
-5. Reference specific sources when making claims
+4. If evidence contains pending_review information, mark it with ⚠️ and note "此信息尚待人工确认"
+5. Assign a confidence score (0.0-1.0) based on evidence quality
+6. Reference specific sources when making claims
 
 Output JSON:
 {{
@@ -71,11 +74,24 @@ class AgentOrchestrator:
     ) -> AgentResponse:
         max_iter = max_iterations or self.max_iterations
         start_time = time.time()
+        tokens_before = llm_client._total_tokens
+        cost_before = llm_client._total_cost
+        tracer = SpanTracer()
+
+        # Load session history
+        conversation_history = ""
+        if session_id:
+            history = await session_memory.get_history(session_id)
+            if history:
+                conversation_history = "\n".join(
+                    f"Q: {h.get('question', '')}\nA: {h.get('answer', '')}" for h in history
+                )
 
         # Step 1: Plan
-        intent, steps = await self.planner.plan(question)
+        with tracer.span("plan", {"question": question[:100]}):
+            _intent, steps = await self.planner.plan(question)
         if query_type:
-            intent = query_type
+            _intent = query_type
 
         # Step 2: Execute reasoning steps
         working_memory: list[dict[str, Any]] = []
@@ -85,9 +101,10 @@ class AgentOrchestrator:
             for step in steps:
                 step_start = time.time()
 
-                result = await tool_registry.execute(
-                    step.tool, step.input_params
-                )
+                with tracer.span(f"tool:{step.tool}", {"step_id": step.step_id}):
+                    result = await tool_registry.execute(
+                        step.tool, step.input_params
+                    )
 
                 step.output_summary = _summarize_result(result)
                 step.duration_ms = int((time.time() - step_start) * 1000)
@@ -105,12 +122,16 @@ class AgentOrchestrator:
             evidence_text = _format_evidence(working_memory)
             graph_context = _extract_graph_context(working_memory)
 
-            synthesis = await self._synthesize(question, evidence_text, graph_context)
+            with tracer.span("synthesize"):
+                synthesis = await self._synthesize(
+                    question, evidence_text, graph_context, conversation_history
+                )
 
             # Step 4: Validate
-            is_valid, confidence = await self._validate(
-                synthesis.get("answer", ""), evidence_text
-            )
+            with tracer.span("validate"):
+                is_valid, confidence = await self._validate(
+                    synthesis.get("answer", ""), evidence_text
+                )
 
             if is_valid or iteration >= max_iter - 1:
                 total_ms = int((time.time() - start_time) * 1000)
@@ -122,13 +143,25 @@ class AgentOrchestrator:
                     duration_ms=total_ms,
                 )
 
+                answer_text = synthesis.get("answer", "I could not find sufficient information.")
+
+                if session_id:
+                    await session_memory.add(session_id, {
+                        "question": question,
+                        "answer": answer_text[:500],
+                        "entities": synthesis.get("key_facts", [])[:5],
+                    })
+
                 return AgentResponse(
-                    answer=synthesis.get("answer", "I could not find sufficient information."),
+                    answer=answer_text,
                     confidence=confidence,
                     reasoning_trace=executed_steps,
                     sources=[],
                     conflicts=[],
                     entities_referenced=[],
+                    total_tokens=llm_client._total_tokens - tokens_before,
+                    total_cost=round(llm_client._total_cost - cost_before, 4),
+                    total_duration_ms=total_ms,
                 )
 
             # Re-plan if validation failed
@@ -142,10 +175,14 @@ class AgentOrchestrator:
                 )
             ]
 
+        total_ms = int((time.time() - start_time) * 1000)
         return AgentResponse(
             answer="I was unable to find a confident answer after multiple reasoning attempts.",
             confidence=0.0,
             reasoning_trace=executed_steps,
+            total_tokens=llm_client._total_tokens - tokens_before,
+            total_cost=round(llm_client._total_cost - cost_before, 4),
+            total_duration_ms=total_ms,
         )
 
     async def stream(
@@ -154,7 +191,6 @@ class AgentOrchestrator:
         session_id: str | None = None,
     ) -> AsyncGenerator[str, None]:
         result = await self.run(question, session_id)
-        # Stream the answer token by token for SSE
         words = result.answer.split()
         for i, word in enumerate(words):
             yield json.dumps({"type": "token", "content": word + " "})
@@ -165,10 +201,16 @@ class AgentOrchestrator:
         })
 
     async def _synthesize(
-        self, question: str, evidence: str, graph_context: str
+        self, question: str, evidence: str, graph_context: str, conversation_history: str = ""
     ) -> dict[str, Any]:
+        history_section = ""
+        if conversation_history:
+            history_section = f"对话历史（同一session）：\n{conversation_history}\n\n"
         prompt = SYNTHESIS_PROMPT.format(
-            question=question, evidence=evidence, graph_context=graph_context
+            question=question,
+            evidence=evidence,
+            graph_context=graph_context,
+            conversation_history_section=history_section,
         )
         try:
             response = await llm_client.chat_json(

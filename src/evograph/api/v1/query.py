@@ -37,6 +37,9 @@ async def query(request: QueryRequest) -> QueryResponse:
         reasoning_trace=result.reasoning_trace if request.include_reasoning else [],
         sources=[],
         conflicts=[],
+        total_tokens=result.total_tokens,
+        total_cost=result.total_cost,
+        total_duration_ms=result.total_duration_ms,
     )
 
 

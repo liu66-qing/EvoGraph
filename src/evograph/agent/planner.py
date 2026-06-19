@@ -29,12 +29,12 @@ For each step, specify:
 Also classify the query intent: factual, temporal, causal, comparative, or exploratory.
 
 Output JSON:
-{
+{{
   "intent": "factual|temporal|causal|comparative|exploratory",
   "steps": [
-    {"step_id": 1, "action": "...", "tool": "...", "input_params": {...}, "depends_on": []}
+    {{"step_id": 1, "action": "...", "tool": "...", "input_params": {{}}, "depends_on": []}}
   ]
-}
+}}
 
 Question: {question}
 
