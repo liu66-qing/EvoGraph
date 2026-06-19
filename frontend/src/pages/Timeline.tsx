@@ -8,13 +8,13 @@ interface TimelineEvent {
 }
 
 const DEMO_EVENTS: TimelineEvent[] = [
-  { timestamp: '2024-01-15', type: 'entity_created', description: 'Entity "OpenAI" created' },
-  { timestamp: '2024-01-15', type: 'relation_added', description: 'Sam Altman --[CEO_OF]--> OpenAI' },
-  { timestamp: '2024-01-16', type: 'entity_created', description: 'Entity "GPT-4" created' },
-  { timestamp: '2024-01-16', type: 'relation_added', description: 'OpenAI --[PRODUCES]--> GPT-4' },
-  { timestamp: '2024-01-17', type: 'relation_added', description: 'Microsoft --[INVESTED_IN]--> OpenAI' },
-  { timestamp: '2024-01-18', type: 'conflict_detected', description: 'Temporal overlap: CEO_OF for OpenAI' },
-  { timestamp: '2024-01-18', type: 'relation_expired', description: 'Mira Murati --[CEO_OF]--> OpenAI (expired)' },
+  { timestamp: '2024-01-15', type: 'entity_created', description: '实体「何塞·阿尔卡蒂奥·布恩迪亚」创建' },
+  { timestamp: '2024-01-15', type: 'relation_added', description: '何塞 --[FOUNDED]--> 马孔多' },
+  { timestamp: '2024-01-16', type: 'entity_created', description: '实体「奥雷里亚诺·布恩迪亚上校」创建' },
+  { timestamp: '2024-01-16', type: 'relation_added', description: '奥雷里亚诺 --[SON_OF]--> 何塞' },
+  { timestamp: '2024-01-17', type: 'relation_added', description: '香蕉公司 --[LOCATED_IN]--> 马孔多' },
+  { timestamp: '2024-01-18', type: 'conflict_detected', description: '时间冲突：马孔多建镇日期' },
+  { timestamp: '2024-01-18', type: 'relation_expired', description: '何塞 --[LEADER_OF]--> 马孔多远征队（已过期）' },
 ]
 
 const EVENT_COLORS: Record<string, string> = {
@@ -35,9 +35,9 @@ export default function Timeline() {
       <header className="p-4 border-b bg-white">
         <h2 className="text-lg font-semibold flex items-center gap-2">
           <Clock className="w-5 h-5 text-purple-500" />
-          Temporal Evolution
+          时间演化
         </h2>
-        <p className="text-sm text-gray-500">Travel through time to see how the knowledge graph evolved</p>
+        <p className="text-sm text-gray-500">查看知识图谱的演化历程</p>
       </header>
 
       <div className="p-6 space-y-6">
@@ -69,15 +69,15 @@ export default function Timeline() {
           </div>
 
           <div className="flex gap-4 text-xs">
-            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-green-500" /> Entity Created</div>
-            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-500" /> Relation Added</div>
-            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-gray-400" /> Relation Expired</div>
-            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500" /> Conflict Detected</div>
+            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-green-500" /> 实体创建</div>
+            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-500" /> 关系添加</div>
+            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-gray-400" /> 关系过期</div>
+            <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500" /> 冲突检测</div>
           </div>
         </div>
 
         <div className="bg-white rounded-lg border p-4">
-          <h3 className="font-medium mb-4">Evolution Events</h3>
+          <h3 className="font-medium mb-4">演化事件</h3>
           <div className="relative">
             <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200" />
             <div className="space-y-4">
@@ -95,15 +95,15 @@ export default function Timeline() {
         </div>
 
         <div className="bg-white rounded-lg border p-4">
-          <h3 className="font-medium mb-3">Graph Snapshot Diff</h3>
+          <h3 className="font-medium mb-3">图谱快照对比</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="p-3 bg-gray-50 rounded">
-              <p className="text-xs font-medium text-gray-500 mb-2">Before (2024-01-15)</p>
-              <p className="text-sm">3 entities, 2 relations</p>
+              <p className="text-xs font-medium text-gray-500 mb-2">之前 (2024-01-15)</p>
+              <p className="text-sm">3 个实体，2 个关系</p>
             </div>
             <div className="p-3 bg-gray-50 rounded">
-              <p className="text-xs font-medium text-gray-500 mb-2">After (2024-01-18)</p>
-              <p className="text-sm">8 entities, 7 relations, 1 conflict</p>
+              <p className="text-xs font-medium text-gray-500 mb-2">之后 (2024-01-18)</p>
+              <p className="text-sm">8 个实体，7 个关系，1 个冲突</p>
             </div>
           </div>
         </div>

@@ -42,12 +42,12 @@ export default function GraphExplorer() {
   return (
     <div className="h-full flex flex-col">
       <header className="p-4 border-b bg-white flex items-center gap-4">
-        <h2 className="text-lg font-semibold">Knowledge Graph Explorer</h2>
+        <h2 className="text-lg font-semibold">知识图谱</h2>
         <div className="flex-1 max-w-md relative">
           <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search entities..."
+            placeholder="搜索实体..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -64,7 +64,7 @@ export default function GraphExplorer() {
         <div className="flex-1 relative bg-gray-50">
           <svg ref={svgRef} className="w-full h-full" />
           <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow p-3 text-xs">
-            <p className="font-medium mb-2">Entity Types</p>
+            <p className="font-medium mb-2">实体类型</p>
             {Object.entries(TYPE_COLORS).map(([type, color]) => (
               <div key={type} className="flex items-center gap-2 mb-1">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
@@ -84,7 +84,7 @@ export default function GraphExplorer() {
               {selectedNode.type}
             </span>
             <div className="mt-4 text-sm text-gray-600">
-              <p className="font-medium text-gray-800 mb-2">Relationships</p>
+              <p className="font-medium text-gray-800 mb-2">关联关系</p>
               {links
                 .filter(
                   (l) =>
@@ -179,22 +179,22 @@ function renderGraph(
 
 // Demo data for initial render
 const DEMO_NODES: GraphNode[] = [
-  { id: '1', name: 'OpenAI', type: 'organization' },
-  { id: '2', name: 'Sam Altman', type: 'person' },
-  { id: '3', name: 'GPT-4', type: 'product' },
-  { id: '4', name: 'Microsoft', type: 'organization' },
-  { id: '5', name: 'Satya Nadella', type: 'person' },
-  { id: '6', name: 'AI Safety', type: 'concept' },
-  { id: '7', name: 'San Francisco', type: 'location' },
-  { id: '8', name: 'Transformer', type: 'technology' },
+  { id: '1', name: '何塞·阿尔卡蒂奥·布恩迪亚', type: 'person' },
+  { id: '2', name: '乌尔苏拉', type: 'person' },
+  { id: '3', name: '马孔多', type: 'location' },
+  { id: '4', name: '奥雷里亚诺·布恩迪亚上校', type: 'person' },
+  { id: '5', name: '梅尔基亚德斯', type: 'person' },
+  { id: '6', name: '阿玛兰妲', type: 'person' },
+  { id: '7', name: '雷梅黛丝', type: 'person' },
+  { id: '8', name: '香蕉公司', type: 'organization' },
 ]
 
 const DEMO_LINKS: GraphLink[] = [
-  { source: '2', target: '1', type: 'CEO_OF', confidence: 0.95 },
-  { source: '1', target: '3', type: 'PRODUCES', confidence: 0.99 },
-  { source: '4', target: '1', type: 'INVESTED_IN', confidence: 0.9 },
-  { source: '5', target: '4', type: 'CEO_OF', confidence: 0.95 },
-  { source: '1', target: '7', type: 'LOCATED_IN', confidence: 0.85 },
-  { source: '3', target: '8', type: 'USES', confidence: 0.9 },
-  { source: '1', target: '6', type: 'RESEARCHES', confidence: 0.8 },
+  { source: '1', target: '2', type: 'MARRIED_TO', confidence: 0.99 },
+  { source: '1', target: '3', type: 'FOUNDED', confidence: 0.95 },
+  { source: '4', target: '1', type: 'SON_OF', confidence: 0.99 },
+  { source: '6', target: '1', type: 'DAUGHTER_OF', confidence: 0.99 },
+  { source: '5', target: '1', type: 'FRIEND_OF', confidence: 0.85 },
+  { source: '8', target: '3', type: 'LOCATED_IN', confidence: 0.9 },
+  { source: '4', target: '7', type: 'MARRIED_TO', confidence: 0.8 },
 ]

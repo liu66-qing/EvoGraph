@@ -57,8 +57,8 @@ export default function DocumentIngest() {
   return (
     <div className="h-full flex flex-col">
       <header className="p-4 border-b bg-white">
-        <h2 className="text-lg font-semibold">Document Ingestion</h2>
-        <p className="text-sm text-gray-500">Upload documents to extract knowledge and evolve the graph</p>
+        <h2 className="text-lg font-semibold">文档管理</h2>
+        <p className="text-sm text-gray-500">上传文档抽取知识，演化知识图谱</p>
       </header>
 
       <div className="p-6 space-y-6">
@@ -72,17 +72,17 @@ export default function DocumentIngest() {
           )}
         >
           <Upload className="w-10 h-10 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600 mb-2">Drag & drop documents here</p>
-          <p className="text-sm text-gray-400 mb-4">Supports PDF, TXT, MD, HTML</p>
+          <p className="text-gray-600 mb-2">拖拽文档到此处上传</p>
+          <p className="text-sm text-gray-400 mb-4">支持 PDF、TXT、MD、HTML 格式</p>
           <label className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700">
-            Browse Files
+            选择文件
             <input type="file" multiple accept=".pdf,.txt,.md,.html" onChange={handleFileSelect} className="hidden" />
           </label>
         </div>
 
         {documents.length > 0 && (
           <div>
-            <h3 className="font-medium mb-3">Processing Queue</h3>
+            <h3 className="font-medium mb-3">处理队列</h3>
             <div className="space-y-2">
               {documents.map((doc) => (
                 <div key={doc.id} className="flex items-center gap-3 p-3 bg-white rounded-lg border">
@@ -90,10 +90,10 @@ export default function DocumentIngest() {
                   <div className="flex-1">
                     <p className="text-sm font-medium">{doc.filename}</p>
                     <p className="text-xs text-gray-500">
-                      {doc.status === 'completed' && `${doc.entity_count} entities, ${doc.relation_count} relations`}
-                      {doc.status === 'processing' && 'Extracting entities and relations...'}
-                      {doc.status === 'pending' && 'Queued for processing'}
-                      {doc.status === 'failed' && 'Processing failed'}
+                      {doc.status === 'completed' && `${doc.entity_count} 个实体, ${doc.relation_count} 个关系`}
+                      {doc.status === 'processing' && '正在抽取实体和关系...'}
+                      {doc.status === 'pending' && '排队等待处理'}
+                      {doc.status === 'failed' && '处理失败'}
                     </p>
                   </div>
                   <StatusIcon status={doc.status} />
@@ -104,9 +104,9 @@ export default function DocumentIngest() {
         )}
 
         <div className="bg-white rounded-lg border p-4">
-          <h3 className="font-medium mb-3">Evolution Pipeline</h3>
+          <h3 className="font-medium mb-3">知识演化流水线</h3>
           <div className="flex items-center gap-2 text-sm">
-            {['Ingest', 'Extract', 'Resolve', 'Conflict Check', 'Merge'].map((stage, i) => (
+            {['导入', '抽取', '消歧', '冲突检测', '合并'].map((stage, i) => (
               <div key={stage} className="flex items-center gap-2">
                 <div className="px-3 py-1 bg-gray-100 rounded text-gray-600">{stage}</div>
                 {i < 4 && <span className="text-gray-300">→</span>}

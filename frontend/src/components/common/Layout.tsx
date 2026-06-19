@@ -3,11 +3,11 @@ import { Network, MessageSquare, FileUp, AlertTriangle, Clock } from 'lucide-rea
 import { clsx } from 'clsx'
 
 const navItems = [
-  { path: '/', label: 'Graph Explorer', icon: Network },
-  { path: '/query', label: 'Query Console', icon: MessageSquare },
-  { path: '/documents', label: 'Documents', icon: FileUp },
-  { path: '/conflicts', label: 'Conflicts', icon: AlertTriangle },
-  { path: '/timeline', label: 'Timeline', icon: Clock },
+  { path: '/', label: '知识图谱', icon: Network },
+  { path: '/query', label: '智能问答', icon: MessageSquare },
+  { path: '/documents', label: '文档管理', icon: FileUp },
+  { path: '/conflicts', label: '冲突检测', icon: AlertTriangle },
+  { path: '/timeline', label: '时间线', icon: Clock },
 ]
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -19,7 +19,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Network className="w-6 h-6 text-blue-400" />
             EvoGraph
           </h1>
-          <p className="text-xs text-gray-400 mt-1">Knowledge Graph Evolution Agent</p>
+          <p className="text-xs text-gray-400 mt-1">知识图谱演化智能体</p>
         </div>
         <nav className="flex-1 p-2">
           {navItems.map(({ path, label, icon: Icon }) => (
@@ -41,7 +41,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <div className="p-4 border-t border-gray-700 text-xs text-gray-500">
-          Agentic RAG with KG Evolution
+          Agentic RAG 知识演化系统
         </div>
       </aside>
       <main className="flex-1 overflow-auto">{children}</main>
