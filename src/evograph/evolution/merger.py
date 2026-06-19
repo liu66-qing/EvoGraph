@@ -10,9 +10,7 @@ import structlog
 from evograph.models.domain import (
     ExtractionResult,
     ExtractedEntity,
-    ExtractedRelation,
     GraphRelation,
-    EntityType,
 )
 from evograph.graph.neo4j_client import neo4j_client
 from evograph.evolution.conflict_detector import conflict_detector
@@ -65,9 +63,15 @@ class GraphMerger:
                 stats["conflicts_detected"] += len(conflicts)
                 for conflict in conflicts:
                     await self._store_conflict(conflict)
-
-            await self._create_relation(graph_rel)
-            stats["relations_created"] += 1
+                await self._create_pending_relation(graph_rel)
+                logger.warning(
+                    "relation_pending_review",
+                    source=graph_rel.source_id,
+                    target=graph_rel.target_id,
+                )
+            else:
+                await self._create_relation(graph_rel)
+                stats["relations_created"] += 1
 
         await self._link_provenance(extraction)
 
@@ -140,6 +144,35 @@ class GraphMerger:
                 confidence: $confidence,
                 source_ids: $source_ids,
                 is_active: true
+            }]->(target)
+            """,
+            {
+                "source_id": rel.source_id,
+                "target_id": rel.target_id,
+                "rel_id": rel.id,
+                "rel_type": rel.relation_type,
+                "valid_from": rel.valid_from.isoformat() if rel.valid_from else None,
+                "valid_to": rel.valid_to.isoformat() if rel.valid_to else None,
+                "confidence": rel.confidence,
+                "source_ids": rel.source_ids,
+            },
+        )
+
+    async def _create_pending_relation(self, rel: GraphRelation) -> None:
+        await neo4j_client.execute_write(
+            """
+            MATCH (source:Entity {id: $source_id})
+            MATCH (target:Entity {id: $target_id})
+            CREATE (source)-[r:RELATION {
+                id: $rel_id,
+                type: $rel_type,
+                valid_from: $valid_from,
+                valid_to: $valid_to,
+                observed_at: datetime(),
+                confidence: $confidence,
+                source_ids: $source_ids,
+                is_active: false,
+                status: 'pending_review'
             }]->(target)
             """,
             {

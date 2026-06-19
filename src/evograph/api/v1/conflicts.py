@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
 import structlog
 
 from evograph.models.api_schemas import ConflictListResponse, ConflictResolveRequest
@@ -63,14 +63,43 @@ async def get_conflict(conflict_id: str) -> dict:
 async def resolve_conflict(
     conflict_id: str, request: ConflictResolveRequest
 ) -> dict[str, str]:
+    if request.resolution == "accept_new":
+        await neo4j_client.execute_write(
+            """
+            MATCH ()-[r:RELATION {status: 'pending_review'}]->()
+            WHERE r.id IN [(c:Conflict {id: $cid})-[:INVOLVES]->(rel) | rel.id]
+            SET r.is_active = true, r.status = 'accepted'
+            """,
+            {"cid": conflict_id},
+        )
+    elif request.resolution == "keep_existing":
+        await neo4j_client.execute_write(
+            """
+            MATCH ()-[r:RELATION {status: 'pending_review'}]->()
+            WHERE r.id IN [(c:Conflict {id: $cid})-[:INVOLVES]->(rel) | rel.id]
+            DELETE r
+            """,
+            {"cid": conflict_id},
+        )
+    elif request.resolution == "keep_both":
+        await neo4j_client.execute_write(
+            """
+            MATCH ()-[r:RELATION {status: 'pending_review'}]->()
+            WHERE r.id IN [(c:Conflict {id: $cid})-[:INVOLVES]->(rel) | rel.id]
+            SET r.is_active = true, r.status = 'accepted'
+            """,
+            {"cid": conflict_id},
+        )
+
     await neo4j_client.execute_write(
         """
         MATCH (c:Conflict {id: $id})
         SET c.status = 'resolved',
             c.resolved_at = datetime(),
+            c.resolution = $resolution,
             c.resolution_note = $note
         """,
-        {"id": conflict_id, "note": request.note or request.resolution},
+        {"id": conflict_id, "resolution": request.resolution, "note": request.note or ""},
     )
     logger.info("conflict_resolved", conflict_id=conflict_id, resolution=request.resolution)
     return {"status": "resolved", "id": conflict_id}
