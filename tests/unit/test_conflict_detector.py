@@ -1,9 +1,8 @@
 """Tests for the conflict detection engine."""
 
-import pytest
 from datetime import datetime
 
-from evograph.models.domain import GraphRelation, ConflictType
+from evograph.models.domain import GraphRelation
 
 
 class TestConflictDetection:
